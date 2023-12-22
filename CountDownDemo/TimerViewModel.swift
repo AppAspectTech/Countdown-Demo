@@ -12,14 +12,14 @@ import BackgroundTasks
 class TimerViewModel: ObservableObject {
     // MARK: - Published Properties
 
-    @Published var timeRemaining: TimeInterval = 60
+    @Published var timeRemaining: TimeInterval = 59
     @Published var isRunning = false
     @Published var timerValue: String = "60:00"
     private var backgroundTime: TimeInterval = 0
     // MARK: - Computed Properties
 
     var progress: Double {
-        return 1.0 - (timeRemaining / 60.0)
+        return 1.0 - (timeRemaining / 59.0)
     }
 
     // MARK: - Private Properties
@@ -55,12 +55,13 @@ class TimerViewModel: ObservableObject {
                 guard let self = self else { return }
                 if self.timeRemaining > 0 {
                     self.timeRemaining -= 0.01
+                    DispatchQueue.main.async {
+                        self.timerValue = String(format: "%.0f:%02d", self.timeRemaining, Int(self.timeRemaining.truncatingRemainder(dividingBy: 1) * 100))
+                    }
                 } else {
                     self.reset()
                 }
-                DispatchQueue.main.async {
-                    self.timerValue = String(format: "%.0f:%02d", self.timeRemaining, Int(self.timeRemaining.truncatingRemainder(dividingBy: 1) * 100))
-                }
+                
             }
         isRunning = true
     }
@@ -72,7 +73,7 @@ class TimerViewModel: ObservableObject {
     }
 
     func reset() {
-        timeRemaining = 60
+        timeRemaining = 59
         isRunning = false
         timer?.cancel()
         self.timerValue = "60:00"
